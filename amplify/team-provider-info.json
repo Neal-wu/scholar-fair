@@ -1,0 +1,15 @@
+{
+  "production": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-scholarfair-production-83085-authRole",
+      "UnauthRoleArn": "arn:aws:iam::985539764229:role/amplify-scholarfair-production-83085-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::985539764229:role/amplify-scholarfair-production-83085-authRole",
+      "Region": "eu-west-1",
+      "DeploymentBucketName": "amplify-scholarfair-production-83085-deployment",
+      "UnauthRoleName": "amplify-scholarfair-production-83085-unauthRole",
+      "StackName": "amplify-scholarfair-production-83085",
+      "StackId": "arn:aws:cloudformation:eu-west-1:985539764229:stack/amplify-scholarfair-production-83085/f1d63a30-09b3-11f0-a7d8-0203717944d1",
+      "AmplifyAppId": "d2oa7z8uj98b4n"
+    }
+  }
+}
