@@ -8,6 +8,7 @@ applications:
             - npm install -g prisma
         build:
           commands:
+            - npm run prisma generate
             - npm run build
       artifacts:
         baseDirectory: .next
