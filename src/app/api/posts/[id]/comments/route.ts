@@ -33,9 +33,22 @@ export async function GET(
         parentId: null, // Only fetch top-level comments
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: 'desc'
       },
-      ...includeReplies,
+      include: {
+        replies: {
+          include: {
+            replies: {
+              include: {
+                replies: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'asc'
+          }
+        }
+      }
     });
     return NextResponse.json(comments);
   } catch (error) {
@@ -58,7 +71,17 @@ export async function POST(
         postId: params.id,
         parentId: body.parentId,
       },
-      include: includeReplies.include,
+      include: {
+        replies: {
+          include: {
+            replies: {
+              include: {
+                replies: true
+              }
+            }
+          }
+        }
+      }
     });
 
     return NextResponse.json(comment);
