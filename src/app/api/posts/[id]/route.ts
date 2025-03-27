@@ -68,7 +68,10 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching post:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch post', details: error.message },
+      { 
+        error: 'Failed to fetch post', 
+        details: error instanceof Error ? error.message : 'Unknown error occurred'
+      },
       { status: 500 }
     );
   }
