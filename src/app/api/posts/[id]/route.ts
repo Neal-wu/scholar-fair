@@ -37,11 +37,24 @@ export async function GET(
             parentId: null, // Only fetch top-level comments
           },
           orderBy: {
-            createdAt: 'desc',
+            createdAt: 'desc'
           },
-          ...includeReplies,
-        },
-      },
+          include: {
+            replies: {
+              include: {
+                replies: {
+                  include: {
+                    replies: true
+                  }
+                }
+              },
+              orderBy: {
+                createdAt: 'asc'
+              }
+            }
+          }
+        }
+      }
     });
 
     if (!post) {
