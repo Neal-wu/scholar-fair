@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://scholar_fair_admin:scholar_fair_admin@127.0.0.1:5432/scholar_fair"
 }
 
 model Post {
@@ -21,6 +21,7 @@ model Post {
   updatedAt   DateTime  @updatedAt
   comments    Comment[]
   tags        String[]
+  attachments Attachment[]
 }
 
 model Comment {
@@ -41,6 +42,18 @@ model User {
   email     String   @unique
   password  String
   name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  fileName  String
+  fileType  String
+  fileSize  Int
+  fileUrl   String
+  postId    String?
+  post      Post?    @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 } 

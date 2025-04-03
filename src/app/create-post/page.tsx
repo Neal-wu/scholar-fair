@@ -2,18 +2,34 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import FileUpload from '@/components/FileUpload';
 
 export default function CreatePost() {
   const router = useRouter();
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [country, setCountry] = useState('');
-  const [university, setUniversity] = useState('');
-  const [department, setDepartment] = useState('');
-  const [position, setPosition] = useState('');
-  const [defendant, setDefendant] = useState('');
-  const [reporter, setReporter] = useState('');
+  const [attachments, setAttachments] = useState<any[]>([]);
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
+    country: '',
+    university: '',
+    department: '',
+    position: '',
+    defendant: '',
+    reporter: '',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tempPostId, setTempPostId] = useState(`temp-${Date.now()}`); // Temporary ID for file uploads
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleUploadComplete = (attachment: any) => {
+    setAttachments(prev => [...prev, attachment]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,14 +42,8 @@ export default function CreatePost() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title,
-          content,
-          country,
-          university,
-          department,
-          position,
-          defendant,
-          reporter: reporter.trim() || null,
+          ...formData,
+          attachments: attachments.map(att => att.id),
         }),
       });
 
@@ -41,8 +51,8 @@ export default function CreatePost() {
         throw new Error('Failed to create post');
       }
 
-      const post = await response.json();
-      router.push('/');
+      await response.json();
+      router.push('/'); // Redirect to home page instead of post page
     } catch (error) {
       console.error('Error creating post:', error);
     } finally {
@@ -63,8 +73,9 @@ export default function CreatePost() {
           <input
             type="text"
             id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             required
           />
@@ -78,8 +89,9 @@ export default function CreatePost() {
             <input
               type="text"
               id="country"
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               required
             />
@@ -92,8 +104,9 @@ export default function CreatePost() {
             <input
               type="text"
               id="university"
-              value={university}
-              onChange={(e) => setUniversity(e.target.value)}
+              name="university"
+              value={formData.university}
+              onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               required
             />
@@ -106,8 +119,9 @@ export default function CreatePost() {
             <input
               type="text"
               id="department"
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
+              name="department"
+              value={formData.department}
+              onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               required
             />
@@ -120,8 +134,9 @@ export default function CreatePost() {
             <input
               type="text"
               id="position"
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
+              name="position"
+              value={formData.position}
+              onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="e.g., Student, Professor, Researcher"
               required
@@ -135,8 +150,9 @@ export default function CreatePost() {
             <input
               type="text"
               id="defendant"
-              value={defendant}
-              onChange={(e) => setDefendant(e.target.value)}
+              name="defendant"
+              value={formData.defendant}
+              onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               required
             />
@@ -149,8 +165,9 @@ export default function CreatePost() {
             <input
               type="text"
               id="reporter"
-              value={reporter}
-              onChange={(e) => setReporter(e.target.value)}
+              name="reporter"
+              value={formData.reporter}
+              onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="Leave blank to remain anonymous"
             />
@@ -163,14 +180,38 @@ export default function CreatePost() {
           </label>
           <textarea
             id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+            name="content"
+            value={formData.content}
+            onChange={handleChange}
             rows={8}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             placeholder="Please describe the unfair treatment you experienced..."
             required
           />
         </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-medium text-gray-700">
+              Supporting Documents (Optional)
+            </label>
+            <span className="text-xs text-gray-500">You can upload images, PDFs, or other relevant files</span>
+          </div>
+          <FileUpload onUploadComplete={handleUploadComplete} postId={tempPostId} />
+        </div>
+
+        {attachments.length > 0 && (
+          <div>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Uploaded Files:</h3>
+            <ul className="space-y-2">
+              {attachments.map((att) => (
+                <li key={att.id} className="text-sm text-gray-600">
+                  {att.fileName} ({Math.round(att.fileSize / 1024)} KB)
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="flex justify-end">
           <button

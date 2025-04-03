@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/db/schema';
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
@@ -10,40 +10,39 @@ export async function GET() {
       },
       include: {
         comments: true,
+        attachments: true,
       },
     });
 
     return NextResponse.json(posts);
   } catch (error) {
     console.error('Error fetching posts:', error);
-    return NextResponse.json(
-      { 
-        error: 'Failed to fetch posts',
-        details: error instanceof Error ? error.message : 'Unknown error occurred'
-      }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const json = await request.json();
+    const { title, content, country, university, department, position, defendant, reporter, attachments } = json;
     
     // Create the post with all required fields
     const post = await prisma.post.create({
       data: {
-        title: body.title,
-        content: body.content,
-        country: body.country,
-        university: body.university,
-        department: body.department,
-        position: body.position || 'Not Specified',
-        defendant: body.defendant,
-        reporter: body.reporter || null,
-        tags: [], // Initialize with empty array
+        title,
+        content,
+        country,
+        university,
+        department,
+        position,
+        defendant,
+        reporter: reporter || null,
+        attachments: {
+          connect: attachments?.map((id: string) => ({ id })) || [],
+        },
       },
       include: {
+        attachments: true,
         comments: true,
       },
     });
@@ -51,13 +50,7 @@ export async function POST(request: Request) {
     return NextResponse.json(post);
   } catch (error) {
     console.error('Error creating post:', error);
-    return NextResponse.json(
-      { 
-        error: 'Failed to create post', 
-        details: error instanceof Error ? error.message : 'Unknown error occurred'
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 

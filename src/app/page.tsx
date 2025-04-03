@@ -1,6 +1,15 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+
+interface Attachment {
+  id: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  fileUrl: string;
+}
 
 interface Post {
   id: string;
@@ -14,6 +23,7 @@ interface Post {
   reporter: string | null;
   createdAt: string;
   comments: Comment[];
+  attachments: Attachment[];
 }
 
 interface Comment {
@@ -21,6 +31,48 @@ interface Comment {
   content: string;
   authorName: string | null;
   createdAt: string;
+}
+
+function AttachmentPreview({ attachment }: { attachment: Attachment }) {
+  const isImage = attachment.fileType.startsWith('image/');
+  const isPDF = attachment.fileType === 'application/pdf';
+  
+  return (
+    <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded-md">
+      {isImage ? (
+        <div className="relative w-10 h-10">
+          <Image
+            src={attachment.fileUrl}
+            alt={attachment.fileName}
+            fill
+            className="object-cover rounded"
+          />
+        </div>
+      ) : (
+        <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      )}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-gray-900 truncate">
+          {attachment.fileName}
+        </p>
+        <p className="text-xs text-gray-500">
+          {(attachment.fileSize / 1024).toFixed(1)} KB
+        </p>
+      </div>
+      <a
+        href={attachment.fileUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 hover:text-blue-800"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+      </a>
+    </div>
+  );
 }
 
 export default function Home() {
@@ -139,7 +191,7 @@ export default function Home() {
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                       </svg>
-                      <span className="text-sm">{post.comments?.length || 0}</span>
+                      <span className="text-sm">{post.comments?.length ?? 0}</span>
                     </span>
                   </Link>
                 </div>
@@ -188,12 +240,22 @@ export default function Home() {
                   {new Date(post.createdAt).toLocaleDateString()}
                 </time>
                 <p className="text-gray-600 mb-4 line-clamp-3">{post.content}</p>
+                {post.attachments.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <h3 className="text-sm font-medium text-gray-700">Attachments:</h3>
+                    <div className="space-y-2">
+                      {post.attachments.map((attachment) => (
+                        <AttachmentPreview key={attachment.id} attachment={attachment} />
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center justify-end text-sm text-gray-500 border-t pt-4 mt-4">
                   <div className="flex items-center">
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
                     </svg>
-                    {post.comments.length} {post.comments.length === 1 ? 'comment' : 'comments'}
+                    {(post.comments?.length ?? 0)} {(post.comments?.length ?? 0) === 1 ? 'comment' : 'comments'}
                   </div>
                 </div>
               </div>
