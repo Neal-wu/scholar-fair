@@ -174,7 +174,7 @@ export default function NewPost() {
           />
         </div>
 
-        <FileUpload onUploadComplete={handleUploadComplete} postId={''} />
+        <FileUpload onUploadComplete={handleUploadComplete} />
 
         {attachments.length > 0 && (
           <div>
