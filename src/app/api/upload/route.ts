@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     // Create the file URL
     const fileUrl = `/uploads/${uniqueFilename}`;
 
-    // Save attachment in database without postId
+    // Save attachment in database without postId (it will be connected later)
     const attachment = await prisma.attachment.create({
       data: {
         fileName: file.name,

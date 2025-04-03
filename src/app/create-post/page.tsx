@@ -197,7 +197,7 @@ export default function CreatePost() {
             </label>
             <span className="text-xs text-gray-500">You can upload images, PDFs, or other relevant files</span>
           </div>
-          <FileUpload onUploadComplete={handleUploadComplete} postId={tempPostId} />
+          <FileUpload onUploadComplete={handleUploadComplete} />
         </div>
 
         {attachments.length > 0 && (
